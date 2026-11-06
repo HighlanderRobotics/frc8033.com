@@ -1,0 +1,13 @@
+---
+import Site from '../layouts/Site.astro';
+import { getCollection } from 'astro:content';
+import { presentContent } from '../lib/presentation';
+export async function getStaticPaths() {
+  const pages = await getCollection('pages');
+  return pages.map(({data: page}) => ({ params: { path: page.route === '/' ? undefined : page.route.slice(1) }, props: { page } }));
+}
+const { page } = Astro.props;
+---
+<Site title={page.title} description={page.description} bodyClass={page.bodyClass}>
+  <Fragment set:html={presentContent(page.body, page.route)} />
+</Site>

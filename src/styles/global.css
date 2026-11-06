@@ -1,0 +1,29 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+/* Preserve legacy typography and layout; avoid Tailwind preflight changes. */
+:root { --pagefind-ui-primary: #683ba5; }
+.skip-link { position:fixed;left:1rem;top:-6rem;z-index:99999;background:white;color:#462477;padding:1rem; }
+.skip-link:focus { top:1rem; }
+:focus-visible { outline:3px solid #b278ee; outline-offset:4px; }
+.w-dropdown:hover > .w-dropdown-list,.w-dropdown:focus-within > .w-dropdown-list,.w-dropdown.is-open > .w-dropdown-list { display:block; }
+.w-dropdown-toggle:empty { display:none; }
+.w-dropdown:not(:has(.w-dropdown-toggle:not(:empty))) { display:none; }
+.w-nav-button { cursor:pointer; }
+.w-dropdown-toggle { cursor:pointer; }
+.w-dropdown-toggle > button { border:0;background:transparent;color:inherit;padding:6px;font:inherit; }
+.migration-faq > summary { cursor:pointer;list-style:none; }
+.migration-faq > summary::-webkit-details-marker { display:none; }
+.migration-faq[open] > .w-dropdown-list { display:block;position:static; }
+.migration-faq:not([open]) > .w-dropdown-list { display:none; }
+header .w-icon-dropdown-toggle { display:none; }
+.migration-faq .w-dropdown-list { position:static; }
+.migration-faq { display:block!important; width:100%; max-width:100%; margin:0 auto 12px; }
+.migration-faq > summary { display:block; white-space:normal; }
+.migration-faq > .w-dropdown-list { width:100%; min-width:0; }
+.migration-faq .w-dropdown-link { white-space:normal; }
+.body-section:has(.migration-faq) { display:block; }
+@media(max-width:991px) { .w-nav[data-collapse] .w-nav-menu.is-open { display:block!important; } }
+.search-shortcut { position:fixed;right:16px;bottom:16px;z-index:1000;border-radius:24px;background:#663399;color:white;padding:10px 18px;font:16px Heebo,sans-serif;box-shadow:0 2px 12px #0003;text-decoration:none; }
+@media(max-width:991px) { .w-nav-menu.is-open { display:block;position:absolute;top:100%;left:0;right:0;background:white;max-height:80vh;overflow:auto; } .w-nav-menu.is-open .nav-menu-two { display:flex;flex-direction:column;align-items:stretch;padding:20px; } .w-nav-menu.is-open .w-dropdown { display:block; } .w-nav-menu.is-open .w-dropdown-list { position:static; } }
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important;animation:none!important;transition:none!important; } }

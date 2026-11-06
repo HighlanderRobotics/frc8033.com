@@ -1,0 +1,25 @@
+{
+  "name": "highlander-robotics",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1",
+    "build": "astro build && pagefind --site dist",
+    "preview": "astro preview --host 127.0.0.1",
+    "archive": "node scripts/archive-site.mjs && node scripts/repair-assets.mjs && node scripts/import-archive.mjs",
+    "verify": "node scripts/verify.mjs",
+    "import:archive": "node scripts/import-archive.mjs",
+    "check": "npm run build && npm run verify"
+  },
+  "dependencies": {
+    "@sveltia/cms": "^0.261.0",
+    "@tailwindcss/vite": "^4.1.0",
+    "astro": "^7.4.7",
+    "tailwindcss": "^4.1.0"
+  },
+  "devDependencies": {
+    "cheerio": "^1.1.0",
+    "pagefind": "^1.4.0"
+  }
+}

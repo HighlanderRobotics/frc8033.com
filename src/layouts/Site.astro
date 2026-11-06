@@ -1,0 +1,35 @@
+---
+import chrome from '../data/chrome.json';
+import '../styles/global.css';
+import '../styles/refinements.css';
+import manifest from '../../archive/2026-11-05/manifest.json';
+import Header from '../components/Header.astro';
+import { presentFooter } from '../lib/presentation';
+const { title, description, bodyClass = 'body', search = false } = Astro.props;
+const font = manifest.assets.find(a => a.url.startsWith('https://fonts.googleapis.com/css2'))?.local;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    {chrome.css.map(href => <link rel="stylesheet" href={href} />)}
+    {font && <link rel="stylesheet" href={font} />}
+    {search && <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />}
+  </head>
+  <body class={bodyClass}>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header />
+    <main id="main" data-page={Astro.url.pathname.replace(/\/$/, '') || '/'} data-pagefind-body><slot /></main>
+    <Fragment set:html={presentFooter(chrome.footer, Astro.url.pathname.replace(/\/$/, '') || '/')} />
+    <script>
+      import '../scripts/interactions';
+    </script>
+  </body>
+</html>

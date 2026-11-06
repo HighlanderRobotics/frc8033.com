@@ -1,0 +1,33 @@
+backend:
+  name: github
+  repo: HighlanderRobotics/frc8033.com
+  branch: main
+media_folder: public/uploads
+public_folder: /uploads
+site_url: https://www.frc8033.com
+display_url: https://www.frc8033.com
+collections:
+  - name: pages
+    label: Website pages
+    folder: src/content/pages
+    extension: json
+    format: json
+    create: false
+    identifier_field: title
+    summary: '{{title}} — {{route}}'
+    fields:
+      - {label: Title, name: title, widget: string}
+      - {label: Description, name: description, widget: text}
+      - {label: Legacy URL, name: route, widget: hidden}
+      - {label: Body class, name: bodyClass, widget: hidden}
+      - {label: Page HTML, name: body, widget: text, hint: 'Preserved replica markup. Edit text and local image paths carefully; preview the build before publishing.'}
+  - name: shared
+    label: Shared navigation and footer
+    files:
+      - name: chrome
+        label: Header and footer
+        file: src/data/chrome.json
+        fields:
+          - {label: Header HTML, name: header, widget: text}
+          - {label: Footer HTML, name: footer, widget: text}
+          - {label: Stylesheets, name: css, widget: list, field: {label: Path, name: path, widget: string}}
