@@ -1,12 +1,16 @@
 # Highlander Robotics — Astro replica
 
-Replica of the 24 publicly discovered pages at [frc8033.com](https://www.frc8033.com/), reviewed November 5, 2026. Uses Astro 7, Tailwind CSS 4, Sveltia headless CMS, and Pagefind search.
+Originally a replica of the 24 publicly discovered pages at [frc8033.com](https://www.frc8033.com/) as of November 5, 2026. 
+
+### Uses Astro 7, Tailwind CSS 4, Sveltia headless CMS, and Pagefind search.
 
 ## Run locally
 
-Requires Node 22.23.4+; developed with Node 24. Run `npm ci`, `npm run check`, then `npm run preview`. Open `http://localhost:4321/frc8033.com/`. Search is at `/frc8033.com/search/`; CMS is at `/frc8033.com/admin/`. `npm run dev` uses the same project path, but Pagefind requires a production build/preview.
+Requires Node 22.23.4+; developed with Node 24. Run `npm ci`, `npm run check`, then `npm run preview`. Open `http://localhost:4321/frc8033.com/`.
 
-The current live website remains on Webflow. No deployment, Git push, or domain change was performed.
+Search is at `/frc8033.com/search/`; CMS is at `/frc8033.com/admin/`. `npm run dev` uses the same project path, but Pagefind requires a production build/preview.
+
+### The current live website remains on Webflow.
 
 ## GitHub Pages URLs
 
@@ -29,12 +33,7 @@ npm run check
 
 The workflow in `.github/workflows/pages.yml` installs locked dependencies with Node 24, runs `npm run check` (including the production build and Pagefind indexing), and publishes the **contents of `dist/`** as the Pages artifact after a push to `main`. Pull requests run the same checks without deploying. A manual run is available from the Actions tab. Do not add another `frc8033.com` directory inside `dist/`; GitHub mounts the artifact at the repository path.
 
-### First publication from HighlanderRobotics/frc8033.com
-
-1. In the repository, open **Settings → Pages → Build and deployment → Source** and choose **GitHub Actions**. Leave **Custom domain** empty for the default `github.io` URL. If this is a private repository, confirm that the organization's plan supports Pages for private repositories, or use a public repository.
-2. Commit and push the workflow and current source to `main`. The checked-in `public/models/wisp.glb.gz`, `public/models/wisp.json`, assets, content, and `package-lock.json` must be included. `dist/`, `node_modules/`, and `.astro/` remain ignored. The STEP file and Python conversion environment are not needed by GitHub Actions.
-3. Open **Actions → Build and deploy GitHub Pages** and wait for both **build** and **deploy** to succeed. If the workflow was pushed before Pages was enabled, enable Pages and rerun the workflow.
-4. Open [the published project URL](https://highlanderrobotics.github.io/frc8033.com/). Check navigation, search, the Wisp viewer, and the embedded contact form. Future pushes to `main`, including CMS content commits, rebuild and deploy automatically.
+## Future pushes to the `main` branch, including CMS content commits, rebuild and deploy automatically.
 
 No personal access token, repository secret, `gh-pages` branch, or manually committed build folder is needed for this deployment workflow. Organization Actions policies and environment protection rules may require an administrator to allow the listed official GitHub actions or approve the deployment.
 
