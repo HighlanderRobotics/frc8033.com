@@ -1,0 +1,58 @@
+[
+  {
+    "name": "Wisp",
+    "year": 2026,
+    "game": "Rebuilt",
+    "route": "/robots/wispp---2026",
+    "summary": "A compact swerve robot with a spindexer, rotating turret, adjustable shooter, and tube-in-tube climber. Explore the systems that took Wisp to the NorCal District Championship.",
+    "image": "/assets/5fa1886e8922d7ac-69e9994127a9ccda9d285279__ALE2342.jpg"
+  },
+  {
+    "name": "Kelpie",
+    "year": 2025,
+    "game": "Reefscape",
+    "route": "/robots/kelpie---2025",
+    "summary": "Built around a swerve drivetrain, elevator, arm, and end effector, Kelpie earned finalist finishes at the San Francisco and East Bay regionals.",
+    "image": "/assets/dd2a683af4324821-68a230dab816e33cfbec37a8_robot-website.png"
+  },
+  {
+    "name": "Banshee",
+    "year": 2024,
+    "game": "Crescendo",
+    "route": "/robots/banshee---2024",
+    "summary": "A swerve-driven robot with an elevator, shooter, and climber. Banshee carried the team to the Milstein Division finals at the World Championship in Houston.",
+    "image": "/assets/abc645e50eaf071f-6735527a667e1e064f22707a_DSC_9440_Original.jpeg"
+  },
+  {
+    "name": "Paddo",
+    "year": 2023,
+    "game": "Charged Up",
+    "route": "/robots/paddo",
+    "summary": "Our 2023 World Championship robot combines a swerve drivetrain, cascading elevator, roller grabber, and cube intake to handle cones and cubes.",
+    "image": "/assets/6b11fa20565c0695-65c824a8f5aea133f6b6dcc2_Paddo-3.jpg"
+  },
+  {
+    "name": "Selkie",
+    "year": 2022,
+    "game": "Rapid React",
+    "route": "/robots/selkie",
+    "summary": "A compact square swerve drivetrain, integrated router and shooter, over-bumper intake, and two-stage climber make up our 2022 robot.",
+    "image": "/assets/175aa4465c4af51c-65c908a04e251835b4cff494_Selkie.jpg"
+  },
+  {
+    "name": "Whirlpool",
+    "year": 2021,
+    "game": "Infinite Recharge",
+    "route": "/robots/whirlpool",
+    "summary": "Our second robot introduced swerve drive, a hood-style shooter, a cable-track climber, and a revolving mechanism that could carry five balls.",
+    "image": "/assets/b7c2061184fe1ddf-65c90b4dbccbcf82a1835d3f_Whirlpool.JPG"
+  },
+  {
+    "name": "Nessie",
+    "year": 2020,
+    "game": "Infinite Recharge",
+    "route": "/robots/nessie",
+    "summary": "Meet the robot that started it all: a low-goal shooter, extending intake, and color-sensing control panel built by Team 8033’s founders.",
+    "image": "/assets/eb6d90a2e9ca153c-65c90ad374651f26dcfdca8f_Nessie-2.png"
+  }
+]

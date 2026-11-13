@@ -2,12 +2,20 @@
 import Site from '../layouts/Site.astro';
 import { getCollection } from 'astro:content';
 import { presentContent } from '../lib/presentation';
+import RobotViewer from '../components/RobotViewer.astro';
 export async function getStaticPaths() {
   const pages = await getCollection('pages');
   return pages.map(({data: page}) => ({ params: { path: page.route === '/' ? undefined : page.route.slice(1) }, props: { page } }));
 }
 const { page } = Astro.props;
+const html = presentContent(page.body, page.route);
+const subsystemStart = html.indexOf('<div class="div-block-55"');
+const viewerPosition = subsystemStart < 0 ? 0 : subsystemStart;
 ---
 <Site title={page.title} description={page.description} bodyClass={page.bodyClass}>
-  <Fragment set:html={presentContent(page.body, page.route)} />
+  {page.route === '/robots/wispp---2026' ? <>
+    <Fragment set:html={html.slice(0, viewerPosition)} />
+    <RobotViewer />
+    <Fragment set:html={html.slice(viewerPosition)} />
+  </> : <Fragment set:html={html} />}
 </Site>

@@ -1,0 +1,49 @@
+---
+import { withBase } from '../lib/urls';
+import model from '../../public/models/wisp.json';
+const downloadSize = (model.compressedBytes / 1_000_000).toFixed(1);
+---
+<section class="model-section" id="wisp-model" aria-labelledby="model-heading">
+  <div class="model-heading"><div><p class="eyebrow">Inside the engineering</p><h2 id="model-heading">Explore Wisp in 3D</h2></div><p>Get a closer look at our full robot assembly. Rotate, zoom, and explore how it all fits together.</p></div>
+  <div class="robot-viewer" data-robot-viewer data-model-url={withBase('/models/wisp.glb.gz')}>
+    <div class="model-toolbar" aria-label="3D model controls">
+      <div class="model-views" role="group" aria-label="Camera views">
+        <button type="button" data-view="home" disabled>Reset View</button>
+        <button type="button" data-view="front" disabled>Front</button>
+        <button type="button" data-view="side" disabled>Side</button>
+        <button type="button" data-view="top" disabled>Top</button>
+      </div>
+      <div class="model-views"><button type="button" data-spin aria-pressed="false" disabled>Auto-Rotate</button><button type="button" data-fullscreen disabled>Full Screen</button></div>
+    </div>
+    <div class="model-stage">
+      <div class="model-canvas" role="group" aria-label="Interactive Wisp robot model" aria-describedby="model-instructions" tabindex="0"></div>
+      <div class="model-cover">
+        <img src={withBase('/assets/2f0235e5421e2efc-69e980707196648586f290f3_8033-100-2026B.png')} alt="Preview of Wisp’s CAD assembly" loading="lazy" width="500" height="400" />
+        <button class="site-button" type="button" data-load-model>Explore the 3D Model <span aria-hidden="true">↗</span></button>
+        <p class="model-status" role="status" aria-live="polite">Loads on demand · {downloadSize} MB · runs in your browser.</p>
+      </div>
+    </div>
+    <div class="model-help" id="model-instructions"><p><strong>Mouse:</strong> drag to rotate · scroll to zoom · right-drag to pan</p><p><strong>Touch:</strong> one finger to rotate · pinch to zoom · two fingers to pan</p><p><strong>Keyboard:</strong> focus the model, then use arrow keys to rotate, + / − to zoom, or 0 to reset.</p></div>
+    <noscript><p class="model-help">Enable JavaScript to explore the interactive model. The robot’s photos and subsystem descriptions are available below.</p></noscript>
+  </div>
+</section>
+<script>
+  const viewer = document.querySelector<HTMLElement>('[data-robot-viewer]');
+  const button = viewer?.querySelector<HTMLButtonElement>('[data-load-model]');
+  button?.addEventListener('click', async () => {
+    if (!viewer || button.disabled) return;
+    button.disabled = true;
+    const status = viewer.querySelector<HTMLElement>('.model-status')!;
+    status.textContent = 'Preparing the interactive viewer…';
+    try {
+      const { startViewer } = await import('../lib/robot-viewer');
+      await startViewer(viewer);
+    } catch (error) {
+      console.error('Unable to start Wisp viewer', error);
+      viewer.classList.remove('is-loaded');
+      status.textContent = 'The 3D model could not load. Check your connection and use a browser with WebGL 2 support, then try again.';
+      button.textContent = 'Try Loading Again';
+      button.disabled = false;
+    }
+  });
+</script>

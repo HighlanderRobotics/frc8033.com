@@ -14,8 +14,30 @@ const font = manifest.assets.find(a => a.url.startsWith('https://fonts.googleapi
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <script is:inline>
+      // YouTube rejects numeric loopback referrers. Use the same local server's
+      // hostname, preserving the port, page, query, and fragment.
+      if (location.hostname === '127.0.0.1' || location.hostname === '[::1]') {
+        const preview = new URL(location.href);
+        preview.hostname = 'localhost';
+        location.replace(preview.href);
+      }
+    </script>
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link data-favicon="png" rel="icon" type="image/png" href={withBase('/favicon.png')} />
+    <link data-favicon="svg" rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <script is:inline define:vars={{ lightSvg: withBase('/favicon.svg'), lightPng: withBase('/favicon.png'), darkSvg: withBase('/favicon-dark.svg'), darkPng: withBase('/favicon-dark.png') }}>
+      const browserTheme = matchMedia('(prefers-color-scheme: dark)');
+      const updateFavicon = () => {
+        document.querySelector('[data-favicon="svg"]').href = browserTheme.matches ? darkSvg : lightSvg;
+        document.querySelector('[data-favicon="png"]').href = browserTheme.matches ? darkPng : lightPng;
+      };
+      updateFavicon();
+      browserTheme.addEventListener('change', updateFavicon);
+    </script>
+    <link rel="apple-touch-icon" href={withBase('/favicon.png')} />
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />

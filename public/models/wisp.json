@@ -1,0 +1,28 @@
+{
+  "source": "Wisp Full Bot Assembly.step",
+  "sha256": "6b0183bcca76b3d4dcd2cd41d7af389aa5c04dd05e2afb96b2f6290d9dd46c67",
+  "sourceBytes": 72691025,
+  "meshes": 43,
+  "nodes": 43,
+  "triangles": 765133,
+  "materials": 69,
+  "outputBytes": 25935228,
+  "compressedBytes": 9684484,
+  "coordinateSystem": "Assembly axes preserved; viewer uses Z-up, meters",
+  "linearDeflectionMillimeters": 0.8,
+  "angularDeflectionRadians": 0.35,
+  "converter": "OpenCascade via cadquery-ocp 7.9.3.1.1",
+  "sourceMeshes": 1068,
+  "sourceTriangles": 2524190,
+  "drawCalls": 70,
+  "optimization": {
+    "targetRatio": 0.3,
+    "maxRelativeError": 0.0008,
+    "joinedByMaterial": true
+  },
+  "dimensionsMeters": [
+    1.07603594713674,
+    0.8350250124931333,
+    0.6754587053306255
+  ]
+}

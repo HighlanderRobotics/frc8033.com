@@ -1,0 +1,33 @@
+import { readFile, writeFile } from 'node:fs/promises';
+import { gunzipSync } from 'node:zlib';
+import assert from 'node:assert/strict';
+import { Box3, Vector3, Mesh } from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const packed = await readFile('public/models/wisp.glb.gz');
+const metadata = JSON.parse(await readFile('public/models/wisp.json','utf8'));
+const bytes = gunzipSync(packed);
+assert.equal(bytes.toString('ascii',0,4),'glTF');
+assert.equal(bytes.readUInt32LE(4),2);
+assert.equal(bytes.readUInt32LE(8),bytes.length);
+assert.equal(metadata.compressedBytes,packed.length);
+assert.ok(metadata.triangles>1000,'Expected the full robot geometry');
+const data = bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
+const { scene } = await new GLTFLoader().parseAsync(data,'');
+const dimensions = new Box3().setFromObject(scene,true).getSize(new Vector3());
+if (metadata.dimensionsMeters) dimensions.toArray().forEach((value,i)=>assert.ok(Math.abs(value-metadata.dimensionsMeters[i])<0.002,'Optimized assembly dimensions changed'));
+for (const value of dimensions.toArray()) assert.ok(Number.isFinite(value)&&value>0.1&&value<5,'Assembly dimensions must be in meters');
+let meshes=0, renderedTriangles=0;
+scene.traverse(object=>{
+  if (!(object instanceof Mesh)) return;
+  meshes++;
+  const positions=object.geometry.getAttribute('position');
+  assert.ok(positions.count>0);
+  for (const value of positions.array) assert.ok(Number.isFinite(value),'Non-finite vertex');
+  const indices=object.geometry.getIndex();
+  if(indices) for(const value of indices.array) assert.ok(value>=0&&value<positions.count,'Triangle index outside geometry');
+  renderedTriangles+=(indices?.count||positions.count)/3;
+});
+const report={source:metadata.source,compressedBytes:packed.length,meshes,renderedTriangles,dimensionsMeters:dimensions.toArray(),errors:[]};
+await writeFile('docs/improvements-review/wisp-model-validation.json',JSON.stringify(report,null,2)+'\n');
+console.log('Wisp model validation passed:',report);

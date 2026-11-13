@@ -23,16 +23,3 @@ document.addEventListener('click', e => { if (header && !header.contains(e.targe
 header?.addEventListener('keydown', e => { if (e.key === 'Escape') { setNavigation(false); navToggle?.focus(); } });
 header?.addEventListener('focusout', e => { if (e.relatedTarget && !header.contains(e.relatedTarget as Node)) closeDropdowns(); });
 matchMedia('(min-width: 901px)').addEventListener('change', () => setNavigation(false));
-document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach(form => {
-  // No submission is claimed until a real form service is configured and tested.
-  const note = document.createElement('p');
-  note.textContent = 'To contact the team, this preview opens your email app with your message. Your email app must send it to complete delivery.';
-  note.setAttribute('role', 'note'); form.prepend(note);
-  form.addEventListener('submit', event => {
-    event.preventDefault();
-    if (!form.reportValidity()) return;
-    const fields = new FormData(form);
-    const message = [...fields.entries()].map(([key, value]) => `${key}: ${value}`).join('\n\n');
-    location.href = `mailto:frc8033@piedmontmakers.org?subject=${encodeURIComponent('Highlander Robotics website inquiry')}&body=${encodeURIComponent(message)}`;
-  });
-});

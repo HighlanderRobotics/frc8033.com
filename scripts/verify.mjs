@@ -7,11 +7,38 @@ import { createPaths } from '../src/lib/paths.mjs';
 const { withBase, withoutBase } = createPaths(basePath);
 const m = JSON.parse(await readFile('archive/2026-11-05/manifest.json','utf8'));
 const errors = []; let links = 0; let media = 0;
-const routes = new Set([...m.pages.map(p => p.route),'/search','/admin','/404']);
-for (const page of m.pages) {
+const pages = await Promise.all((await readdir('src/content/pages')).filter(f => f.endsWith('.json')).map(async f => JSON.parse(await readFile('src/content/pages/'+f, 'utf8'))));
+const routes = new Set([...pages.map(p => p.route),'/search','/admin','/404']);
+for (const page of pages) {
   const file = 'dist' + (page.route === '/' ? '/index.html' : page.route+'/index.html');
   const $ = load(await readFile(file,'utf8'));
   if (!$('main[data-pagefind-body]').length) errors.push(`${page.route}: missing search body`);
+  if ($('title').text() !== page.title || page.description.length < 60 || page.description.includes('Meet the TeamFAQ')) errors.push(`${page.route}: missing descriptive metadata`);
+  if (!$('link[rel=icon][href$="favicon.svg"]').length) errors.push(`${page.route}: missing branded favicon`);
+  if (!$('script').toArray().some(el=>$(el).text().includes('prefers-color-scheme: dark'))) errors.push(`${page.route}: missing adaptive favicon`);
+  if (page.route === '/outreach/2019' && ($('#open-house img').attr('srcset') || !$('#open-house img[src$="IMG_0515.jpeg"]').length)) errors.push('Open House uses incorrectly oriented responsive images');
+  const seasons = $('header .nav-dropdown').filter((_, el) => $(el).find('summary').text().trim() === 'Outreach').find('a').slice(1).map((_,el)=>Number($(el).text().match(/\d{4}/)?.[0])).get();
+  if (seasons.some((year,i)=>i && year > seasons[i-1])) errors.push(`${page.route}: outreach seasons out of order`);
+  const robotYears = $('header .nav-dropdown').filter((_,el)=>$(el).find('summary').text().trim()==='Robots').find('a').slice(1).map((_,el)=>Number($(el).text().match(/\d{4}/)?.[0])).get();
+  if (robotYears.length !== 7 || robotYears.some((year,i)=>i && year > robotYears[i-1])) errors.push(`${page.route}: robot menu missing entries or out of order`);
+  if (page.route === '/contact' && ($('main form').length || !$('iframe.contact-google-form[src*="1FAIpQLScy4cJNCaPKGzi6x8mQH1-W6i2NRfPM-BW3_65OBcQdguxlhQ"]').length)) errors.push('Contact page must embed the supplied Google Form');
+  if (page.route === '/robots/wispp---2026') {
+    const model = $('[data-robot-viewer]').attr('data-model-url');
+    if (!model) errors.push('Wisp page missing interactive viewer');
+    else await checkUrl(model,page.route+'/','Wisp model');
+  }
+  if (page.route === '/robots/overview') {
+    const robotData = JSON.parse(await readFile('src/data/robots.json','utf8'));
+    for (const robot of robotData) {
+      const card = $('.robot-summary').filter((_,el)=>$(el).find('h2').text().trim() === robot.name);
+      if (card.find('img').attr('src') !== withBase(robot.image)) errors.push('Mismatched overview photo: '+robot.name);
+    }
+    const robotRoutes = pages.filter(p=>p.route.startsWith('/robots/') && p.route !== '/robots/overview');
+    if ($('.robot-summary').length !== robotRoutes.length) errors.push('Robot overview does not include every robot');
+    for (const robot of robotRoutes) if (!$(`.robot-summary a[href="${withBase(robot.route+'/')}"]`).length) errors.push('Robot overview missing '+robot.route);
+  }
+  if (page.route === '/outreach/overview' && $('.outreach-card').length !== pages.filter(p=>p.route.startsWith('/outreach/') && p.route !== page.route).length) errors.push('Outreach overview missing a season');
+  if (page.route === '/' && (!$('.paddo-feature iframe[referrerpolicy="strict-origin-when-cross-origin"]').length || !$('.video-fallback').length)) errors.push('Homepage video missing embed configuration or fallback');
   if ($('main').attr('data-page') !== page.route) errors.push(`${page.route}: deployment base leaked into styling route`);
   if ($('main h1').length !== 1) errors.push(`${page.route}: expected one main heading`);
   if ($('header details.nav-dropdown').length !== 3) errors.push(`${page.route}: expected three native navigation dropdowns`);
@@ -76,7 +103,7 @@ sitemap('loc').each((_,el)=>{ if (!sitemap(el).text().startsWith(new URL(basePat
 await access('dist/pagefind/pagefind.js');
 await access('dist/admin/index.html');
 await access('dist/sitemap.xml');
-const report = { site, basePath, pages:m.pages.length, checkedInternalLinks:links, checkedAssetReferences:media, checkedUrlReferences:urlReferences, errors:[...new Set(errors)] };
+const report = { site, basePath, pages:pages.length, checkedInternalLinks:links, checkedAssetReferences:media, checkedUrlReferences:urlReferences, errors:[...new Set(errors)] };
 await writeFile('docs/verification.json',JSON.stringify(report,null,2));
 console.log(report);
 if (errors.length) process.exitCode=1;

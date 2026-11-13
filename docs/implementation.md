@@ -31,7 +31,7 @@ The subsequent [rendering review](rendering-review/README.md) fixes inherited bo
 - Small native scripts replace the Webflow/jQuery runtime for navigation. FAQ uses keyboard-accessible native disclosures and works without JavaScript.
 - Homepage Learn More now leads to Paddo's detail page.
 - Added Pagefind search, skip link, focus outlines, document language, canonicals, fallback descriptions, sitemap, and 404 page.
-- Contact is an explicitly labelled email-app fallback. Required fields are validated and composed into an email to the public team address. The visitor must send the message from a configured email app. This does not reproduce Webflow hosted delivery or claim successful receipt.
+- Contact embeds the team's supplied Google Form with a direct form link and email alternative. Google Forms handles validation and delivery; the site does not intercept or store submissions. The form's fields and submission controls were verified without submitting a response.
 - Webflow animation/interaction identifiers are removed from rendered content. Original scripts and markup remain in the archive.
 - Historical copy, older robot gallery, closed registration link, and both donation routes are retained for fidelity. Proposed corrections are documented in the audience review.
 

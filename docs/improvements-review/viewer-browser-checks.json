@@ -1,0 +1,30 @@
+{
+  "viewer": {
+    "loaded": true,
+    "upright": true,
+    "presetViewsChecked": [
+      "home",
+      "side",
+      "top"
+    ],
+    "keyboardRotationAndZoom": true,
+    "autoRotation": true,
+    "fullscreen": true,
+    "compressedModelMB": 9.7
+  },
+  "contact": {
+    "googleFormLoaded": true,
+    "visibleFields": [
+      "Email",
+      "Name",
+      "Message"
+    ],
+    "mobileWidth": 390,
+    "horizontalOverflow": false,
+    "responseSubmitted": false
+  },
+  "robots": {
+    "matchedPhotographs": 7,
+    "menuOrder": "2026 to 2020"
+  }
+}
