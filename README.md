@@ -27,7 +27,18 @@ Remove-Item Env:SITE_URL, Env:BASE_PATH -ErrorAction SilentlyContinue
 npm run check
 ```
 
-Publish the **contents of `dist/`** as the Pages artifact; do not add another `frc8033.com` directory inside it. GitHub mounts that artifact at the repository path. Pages settings, GitHub Actions publishing, CMS authentication, and DNS changes are separate setup and have not been configured by this URL change.
+The workflow in `.github/workflows/pages.yml` installs locked dependencies with Node 24, runs `npm run check` (including the production build and Pagefind indexing), and publishes the **contents of `dist/`** as the Pages artifact after a push to `main`. Pull requests run the same checks without deploying. A manual run is available from the Actions tab. Do not add another `frc8033.com` directory inside `dist/`; GitHub mounts the artifact at the repository path.
+
+### First publication from HighlanderRobotics/frc8033.com
+
+1. In the repository, open **Settings → Pages → Build and deployment → Source** and choose **GitHub Actions**. Leave **Custom domain** empty for the default `github.io` URL. If this is a private repository, confirm that the organization's plan supports Pages for private repositories, or use a public repository.
+2. Commit and push the workflow and current source to `main`. The checked-in `public/models/wisp.glb.gz`, `public/models/wisp.json`, assets, content, and `package-lock.json` must be included. `dist/`, `node_modules/`, and `.astro/` remain ignored. The STEP file and Python conversion environment are not needed by GitHub Actions.
+3. Open **Actions → Build and deploy GitHub Pages** and wait for both **build** and **deploy** to succeed. If the workflow was pushed before Pages was enabled, enable Pages and rerun the workflow.
+4. Open [the published project URL](https://highlanderrobotics.github.io/frc8033.com/). Check navigation, search, the Wisp viewer, and the embedded contact form. Future pushes to `main`, including CMS content commits, rebuild and deploy automatically.
+
+No personal access token, repository secret, `gh-pages` branch, or manually committed build folder is needed for this deployment workflow. Organization Actions policies and environment protection rules may require an administrator to allow the listed official GitHub actions or approve the deployment.
+
+Publishing the static site does not configure browser-based CMS sign-in. The CMS remains available at `/frc8033.com/admin/`; use its local-repository mode or separately configure its GitHub authentication. Google Forms handles contact submissions. Domain/DNS changes are separate from this default Pages deployment.
 
 Content records keep logical site-root paths such as `/robots/paddo` and `/assets/...`; rendering adds the deployment prefix. New Astro components should use `withBase()` from `src/lib/urls.ts`. Preserve external links and fragment-only anchors. Downloaded CSS uses stylesheet-relative image/font URLs, so it also works under a subdirectory.
 
