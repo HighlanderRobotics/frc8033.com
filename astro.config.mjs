@@ -1,3 +1,4 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
-export default defineConfig({ site: 'https://www.frc8033.com', output: 'static', devToolbar: { enabled: false }, vite: { plugins: [tailwindcss()] } });
+import { site, basePath } from './config/site.mjs';
+export default defineConfig({ site, base: basePath, trailingSlash: 'always', output: 'static', devToolbar: { enabled: false }, vite: { plugins: [tailwindcss()] } });

@@ -4,8 +4,6 @@ backend:
   branch: main
 media_folder: public/uploads
 public_folder: /uploads
-site_url: https://www.frc8033.com
-display_url: https://www.frc8033.com
 collections:
   - name: pages
     label: Website pages

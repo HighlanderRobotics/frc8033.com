@@ -1,5 +1,9 @@
 # Replica implementation and handoff
 
+Current default deployment URL: `https://highlanderrobotics.github.io/frc8033.com/`. Local preview starts at `http://localhost:4321/frc8033.com/`. See the README's GitHub Pages URL instructions for custom-domain overrides. The examples below that use `/admin/` refer to the logical path within this project base.
+
+CMS configuration is now authored in `src/data/admin-config.yml` and emitted by `src/pages/admin/config.yml.ts`; generated metadata and upload URLs follow the deployment base. Logical content URLs remain unchanged in source, preserving CMS editing and the archived evidence.
+
 ## Architecture
 
 Astro 7 builds static routes from validated JSON records. All 24 original paths, including the unusual robot slugs, are preserved. Shared layout renders header/footer once. Local Webflow CSS and fonts preserve the design; Tailwind 4's Vite plugin supplies theme/utilities without preflight resetting legacy styles.

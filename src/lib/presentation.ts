@@ -1,4 +1,19 @@
 import { load } from 'cheerio';
+import { withBase, srcset } from './urls';
+
+function prefixMarkup($: ReturnType<typeof load>) {
+  $('[href],[src],[poster],[action],[srcset],[style]').each((_, el) => {
+    for (const attr of ['href', 'src', 'poster', 'action']) {
+      const value = $(el).attr(attr);
+      if (value) $(el).attr(attr, withBase(value));
+    }
+    const candidates = $(el).attr('srcset');
+    if (candidates) $(el).attr('srcset', srcset(candidates));
+    const style = $(el).attr('style');
+    if (style) $(el).attr('style', style.replace(/url\((?:"([^"]+)"|'([^']+)'|([^)]*))\)/g, (_, a, b, c) => `url("${withBase((a || b || c).trim())}")`));
+  });
+  return $.html();
+}
 
 /** Normalize imported presentation markup without changing the archived evidence or CMS source. */
 export function presentContent(html: string, route: string) {
@@ -36,7 +51,7 @@ export function presentContent(html: string, route: string) {
     $('input[type="email"]').attr('autocomplete', 'email');
     $('.w-form-done,.w-form-fail').remove();
   }
-  return $.html();
+  return prefixMarkup($);
 }
 
 export function presentFooter(html: string, route: string) {
@@ -49,5 +64,5 @@ export function presentFooter(html: string, route: string) {
     $(el).attr('aria-label', href.includes('youtube') ? 'YouTube' : href.includes('instagram') ? 'Instagram' : 'GitHub');
   });
   $('.footer-dark').get(0)!.tagName = 'footer';
-  return $.html();
+  return prefixMarkup($);
 }

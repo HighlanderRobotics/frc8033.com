@@ -10,7 +10,7 @@
     "archive": "node scripts/archive-site.mjs && node scripts/repair-assets.mjs && node scripts/import-archive.mjs",
     "verify": "node scripts/verify.mjs",
     "import:archive": "node scripts/import-archive.mjs",
-    "check": "npm run build && npm run verify"
+    "check": "node scripts/test-paths.mjs && npm run build && npm run verify"
   },
   "dependencies": {
     "@sveltia/cms": "^0.261.0",

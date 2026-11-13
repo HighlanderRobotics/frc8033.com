@@ -4,9 +4,34 @@ Replica of the 24 publicly discovered pages at [frc8033.com](https://www.frc8033
 
 ## Run locally
 
-Requires Node 22.23.4+; developed with Node 24. Run `npm ci`, `npm run build`, `npm run verify`, then `npm run preview`. Open `http://localhost:4321/`. Search is at `/search`; CMS is at `/admin/`. `npm run dev` supports source development, but Pagefind requires a production build/preview.
+Requires Node 22.23.4+; developed with Node 24. Run `npm ci`, `npm run check`, then `npm run preview`. Open `http://localhost:4321/frc8033.com/`. Search is at `/frc8033.com/search/`; CMS is at `/frc8033.com/admin/`. `npm run dev` uses the same project path, but Pagefind requires a production build/preview.
 
 The current live website remains on Webflow. No deployment, Git push, or domain change was performed.
+
+## GitHub Pages URLs
+
+The default public URL is `https://highlanderrobotics.github.io/frc8033.com/`, matching the repository's default GitHub Pages project path. `config/site.mjs` is the shared deployment configuration. Astro routes, imported HTML, navigation, images, CSS, Pagefind, canonical URLs, sitemap, and CMS media URLs honor this base path.
+
+To build for a custom domain at the domain root in PowerShell:
+
+```powershell
+$env:SITE_URL = 'https://www.frc8033.com'
+$env:BASE_PATH = '/'
+npm run check
+```
+
+Clear those session overrides before returning to the GitHub Pages defaults:
+
+```powershell
+Remove-Item Env:SITE_URL, Env:BASE_PATH -ErrorAction SilentlyContinue
+npm run check
+```
+
+Publish the **contents of `dist/`** as the Pages artifact; do not add another `frc8033.com` directory inside it. GitHub mounts that artifact at the repository path. Pages settings, GitHub Actions publishing, CMS authentication, and DNS changes are separate setup and have not been configured by this URL change.
+
+Content records keep logical site-root paths such as `/robots/paddo` and `/assets/...`; rendering adds the deployment prefix. New Astro components should use `withBase()` from `src/lib/urls.ts`. Preserve external links and fragment-only anchors. Downloaded CSS uses stylesheet-relative image/font URLs, so it also works under a subdirectory.
+
+The CMS source is `src/data/admin-config.yml`; Astro generates `/frc8033.com/admin/config.yml` with the active deployment's site and upload URLs. Sitemap and robots text are generated too. A project-level `robots.txt` cannot control crawling for the entire shared `github.io` hostname; it includes the appropriate project sitemap URL.
 
 ## Documentation
 

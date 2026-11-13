@@ -17,7 +17,7 @@ for (const css of m.assets.filter(a => a.type?.includes('text/css'))) {
       a = {url, local:localName(url), bytes:bytes.length, type:r.headers.get('content-type'), status:200, sha256:createHash('sha256').update(bytes).digest('hex')};
       await writeFile('public'+a.local, bytes); m.assets.push(a);
     }
-    raw = raw.replaceAll(match[0], `url("${a.local}")`);
+    raw = raw.replaceAll(match[0], `url("./${path.posix.basename(a.local)}")`);
   }
   await writeFile('public'+css.local, raw);
   css.bytes = Buffer.byteLength(raw); css.sha256 = createHash('sha256').update(raw).digest('hex');
