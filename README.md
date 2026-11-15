@@ -45,6 +45,8 @@ The CMS source is `src/data/admin-config.yml`; Astro generates `/frc8033.com/adm
 
 ## Documentation
 
+- [Testing, local watch checks, CI, and AI test proposals](docs/testing.md): commands, Git hooks, workflow behavior, and GitHub setup.
+
 - [Rendering review and fixes](docs/rendering-review/README.md): page-by-page findings, responsive results, and final control examples.
 
 - [Audience review](docs/audience-review.md): content summary and strengths/gaps for all eight current/prospective audience groups.

@@ -10,7 +10,21 @@
     "archive": "node scripts/archive-site.mjs && node scripts/repair-assets.mjs && node scripts/import-archive.mjs",
     "verify": "node scripts/verify.mjs",
     "import:archive": "node scripts/import-archive.mjs",
-    "check": "node scripts/test-paths.mjs && node scripts/test-viewer-render-loop.mjs && node scripts/verify-model.mjs && npm run build && npm run verify"
+    "check": "npm run test:coverage && node scripts/verify-model.mjs && npm run build && npm run verify",
+    "prepare": "husky",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:all": "node scripts/run-browser-tests.mjs all",
+    "test:visual": "node scripts/run-browser-tests.mjs visual",
+    "test:visual:update": "node scripts/run-browser-tests.mjs visual --update-snapshots",
+    "test:dev": "node scripts/test-watch.mjs",
+    "test:watch:full": "node scripts/test-watch.mjs --production",
+    "test:ci": "npm run check && npm run test:e2e",
+    "test:mutation": "stryker run"
   },
   "dependencies": {
     "@sveltia/cms": "^0.261.0",
@@ -20,10 +34,20 @@
     "three": "^0.187.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@gltf-transform/core": "^4.5.1",
     "@gltf-transform/functions": "^4.5.1",
+    "@playwright/test": "^1.65.1",
+    "@stryker-mutator/core": "^10.1.1",
+    "@stryker-mutator/vitest-runner": "^10.1.1",
+    "@vitest/coverage-v8": "^5.1.0",
     "cheerio": "^1.1.0",
+    "chokidar": "^6.0.0",
+    "fast-check": "^4.10.2",
+    "husky": "^9.1.7",
     "meshoptimizer": "^1.3.0",
-    "pagefind": "^1.4.0"
+    "pagefind": "^1.4.0",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.0"
   }
 }

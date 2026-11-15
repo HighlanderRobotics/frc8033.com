@@ -1,0 +1,91 @@
+name: Extended tests
+
+on:
+  schedule:
+    - cron: '0 12 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: extended-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browsers:
+    name: Firefox and WebKit plus Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - deployment: project
+            base-path: /frc8033.com/
+          - deployment: root
+            base-path: /
+    env:
+      BASE_PATH: ${{ matrix.base-path }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run check
+      - run: npm run test:e2e:all
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cross-browser-results-${{ matrix.deployment }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+
+  mutation:
+    name: Mutation testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run test:mutation
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mutation-results
+          path: reports/mutation/
+          retention-days: 30
+
+  visual:
+    name: Windows visual regression
+    # Baselines are reviewed on Windows. Keep the runner OS consistent rather
+    # than comparing Linux font rendering against Windows screenshots.
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install chromium
+      - run: npm run build
+      - run: npm run test:visual
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-results
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

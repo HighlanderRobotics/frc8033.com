@@ -2,7 +2,6 @@ name: Build and deploy GitHub Pages
 
 on:
   push:
-    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -17,7 +16,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     env:
       SITE_URL: https://highlanderrobotics.github.io
       BASE_PATH: /frc8033.com/
@@ -34,8 +33,25 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
+      - name: Install browser and system dependencies
+        run: npx playwright install --with-deps chromium
+
       - name: Validate and build the site
         run: npm run check
+
+      - name: Test desktop and mobile browsers
+        run: npm run test:e2e
+
+      - name: Upload test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_id }}
+          path: |
+            coverage/
+            playwright-report/
+            test-results/
+          retention-days: 14
 
       - name: Upload static site
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'

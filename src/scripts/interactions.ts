@@ -6,13 +6,15 @@ const closeDropdowns = (except?: HTMLDetailsElement) => dropdowns.forEach(detail
 const setNavigation = (open: boolean) => {
   header?.toggleAttribute('data-nav-open', open);
   navToggle?.setAttribute('aria-expanded', String(open));
-  navToggle?.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+  navToggle?.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
   if (!open) closeDropdowns();
 };
 navToggle?.addEventListener('click', () => setNavigation(!header?.hasAttribute('data-nav-open')));
 dropdowns.forEach(details => {
   details.addEventListener('toggle', () => { if (details.open) closeDropdowns(details); });
-  details.addEventListener('focusout', e => { if (e.relatedTarget && !details.contains(e.relatedTarget as Node)) details.open = false; });
+  // Closing an inline mobile panel during pointer focus moves the next summary
+  // before pointerup, so the tap can land outside the navigation. Close when
+  // another menu opens, or when focus leaves the header (handled below).
   details.addEventListener('keydown', e => {
     if (e.key === 'Escape' && details.open) {
       e.stopPropagation(); details.open = false; details.querySelector('summary')?.focus();

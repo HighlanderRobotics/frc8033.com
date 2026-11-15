@@ -1,0 +1,155 @@
+name: AI test improvements
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-test-improvements
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    if: vars.AI_TESTS_ENABLED == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      has-tests: ${{ steps.collect.outputs.has-tests }}
+      source-sha: ${{ steps.source.outputs.sha }}
+    env:
+      HUSKY: '0'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: source
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Check API configuration
+        env:
+          API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "$API_KEY" ]; then
+            echo 'Add the OPENAI_API_KEY Actions secret before enabling AI_TESTS_ENABLED.'
+            exit 1
+          fi
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - id: context
+        name: Prepare change history
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: node scripts/ai-test-proposal.mjs context
+      - if: steps.context.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: npm ci
+      - if: steps.context.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: npx playwright install --with-deps chromium
+      - if: steps.context.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: npm run check
+      - name: Find mutations that existing tests miss
+        if: steps.context.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        run: npm run test:mutation
+      - name: Propose additional regression tests
+        if: steps.context.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: openai/codex-action@v1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          prompt-file: .github/codex/prompts/improve-tests.md
+          model: ${{ vars.AI_TEST_MODEL }}
+          sandbox: workspace-write
+          safety-strategy: drop-sudo
+          allow-bots: true
+      - name: Collect new test files only
+        id: collect
+        if: steps.context.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: node scripts/ai-test-proposal.mjs collect
+      - uses: actions/upload-artifact@v4
+        if: steps.collect.outputs.has-tests == 'true'
+        with:
+          name: proposed-tests
+          path: .ai-proposal/
+          include-hidden-files: true
+          retention-days: 7
+
+  validate:
+    needs: generate
+    if: needs.generate.outputs.has-tests == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      HUSKY: '0'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.generate.outputs.source-sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: proposed-tests
+          path: .ai-proposal/
+      - name: Validate paths and refuse overwrites
+        run: node scripts/ai-test-proposal.mjs apply
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Validate all tests in a clean runner without API or write credentials
+        run: npm run test:ci
+      - name: Check test strength
+        run: npm run test:mutation
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ai-test-validation
+          path: |
+            coverage/
+            playwright-report/
+            test-results/
+          retention-days: 14
+
+  propose-pr:
+    needs: [generate, validate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    env:
+      HUSKY: '0'
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_SHA: ${{ needs.generate.outputs.source-sha }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.generate.outputs.source-sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: proposed-tests
+          path: .ai-proposal/
+      - name: Apply only the validated new files
+        run: node scripts/ai-test-proposal.mjs apply
+      - name: Open a reviewable test-only pull request
+        run: |
+          branch="codex/tests-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          git switch -c "$branch"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- tests/unit/generated tests/e2e/generated docs/testing-cases
+          git -c core.hooksPath=/dev/null commit -m 'test: add AI-proposed regression coverage'
+          git push origin "$branch"
+          printf 'Adds new regression tests proposed from commit `%s` and repository testing notes.\n\nValidation: `npm run test:ci` passed in a separate clean runner. Existing tests, application code, and screenshot baselines are unchanged. Review the assertions against the intended behavior before merging.\n' "$SOURCE_SHA" > "$RUNNER_TEMP/ai-test-pr.md"
+          gh pr create --base main --head "$branch" --title 'test: improve regression coverage' --body-file "$RUNNER_TEMP/ai-test-pr.md"
+          # GITHUB_TOKEN-created PRs do not trigger push/pull_request workflows.
+          # workflow_dispatch is supported and runs the normal build check here.
+          gh workflow run pages.yml --ref "$branch"

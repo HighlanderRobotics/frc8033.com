@@ -47,7 +47,7 @@ const font = manifest.assets.find(a => a.url.startsWith('https://fonts.googleapi
     {search && <link rel="stylesheet" href={withBase('/pagefind/pagefind-ui.css')} />}
   </head>
   <body class={bodyClass}>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link" href="#main" tabindex="0">Skip to content</a>
     <Header />
     <main id="main" data-page={withoutBase(Astro.url.pathname)} data-pagefind-body><slot /></main>
     <Fragment set:html={presentFooter(chrome.footer, withoutBase(Astro.url.pathname))} />
