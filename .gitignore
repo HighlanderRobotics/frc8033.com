@@ -12,3 +12,6 @@ reports/
 .stryker-tmp/
 .ai-proposal/
 .ai-context/
+.wrangler/
+.dev.vars
+.dev.vars.*

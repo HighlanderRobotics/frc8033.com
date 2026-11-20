@@ -3,6 +3,7 @@ import Site from '../layouts/Site.astro';
 import { getCollection } from 'astro:content';
 import { presentContent } from '../lib/presentation';
 import RobotViewer from '../components/RobotViewer.astro';
+import ContactForm from '../components/ContactForm.astro';
 export async function getStaticPaths() {
   const pages = await getCollection('pages');
   return pages.map(({data: page}) => ({ params: { path: page.route === '/' ? undefined : page.route.slice(1) }, props: { page } }));
@@ -17,5 +18,8 @@ const viewerPosition = subsystemStart < 0 ? 0 : subsystemStart;
     <Fragment set:html={html.slice(0, viewerPosition)} />
     <RobotViewer />
     <Fragment set:html={html.slice(viewerPosition)} />
-  </> : <Fragment set:html={html} />}
+  </> : <>
+    <Fragment set:html={html} />
+    {page.route === '/contact' && <ContactForm />}
+  </>}
 </Site>

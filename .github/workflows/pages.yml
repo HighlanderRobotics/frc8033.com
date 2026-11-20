@@ -20,6 +20,8 @@ jobs:
     env:
       SITE_URL: https://highlanderrobotics.github.io
       BASE_PATH: /frc8033.com/
+      PUBLIC_CONTACT_ENDPOINT: ${{ vars.PUBLIC_CONTACT_ENDPOINT }}
+      PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
     steps:
       - name: Check out source
         uses: actions/checkout@v6

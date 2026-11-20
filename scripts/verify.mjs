@@ -21,7 +21,12 @@ for (const page of pages) {
   if (seasons.some((year,i)=>i && year > seasons[i-1])) errors.push(`${page.route}: outreach seasons out of order`);
   const robotYears = $('header .nav-dropdown').filter((_,el)=>$(el).find('summary').text().trim()==='Robots').find('a').slice(1).map((_,el)=>Number($(el).text().match(/\d{4}/)?.[0])).get();
   if (robotYears.length !== 7 || robotYears.some((year,i)=>i && year > robotYears[i-1])) errors.push(`${page.route}: robot menu missing entries or out of order`);
-  if (page.route === '/contact' && ($('main form').length || !$('iframe.contact-google-form[src*="1FAIpQLScy4cJNCaPKGzi6x8mQH1-W6i2NRfPM-BW3_65OBcQdguxlhQ"]').length)) errors.push('Contact page must embed the supplied Google Form');
+  if (page.route === '/contact') {
+    const form = $('main form[data-contact-form]');
+    if (form.length !== 1 || form.find('[required][name]').length !== 3 || !$('main a[href="mailto:frc8033@piedmontmakers.org"]').length || $('main iframe').length) {
+      errors.push('Contact page must include the native form and direct email alternative');
+    }
+  }
   if (page.route === '/robots/wispp---2026') {
     const model = $('[data-robot-viewer]').attr('data-model-url');
     if (!model) errors.push('Wisp page missing interactive viewer');

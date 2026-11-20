@@ -1,0 +1,23 @@
+{
+  "name": "highlander-contact",
+  "main": "index.mjs",
+  "compatibility_date": "2026-11-19",
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "CONTACT_ORIGINS": "https://highlanderrobotics.github.io,https://www.frc8033.com,https://frc8033.com",
+    "RESEND_FROM": "Highlander Robotics <contact@forms.frc8033.com>"
+  },
+  "ai": { "binding": "AI" },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "highlander-contact",
+    "database_id": "00000000-0000-0000-0000-000000000000"
+  }],
+  "ratelimits": [{
+    "name": "CONTACT_RATE_LIMIT",
+    "namespace_id": "8033",
+    "simple": { "limit": 10, "period": 60 }
+  }],
+  "triggers": { "crons": ["*/5 * * * *"] }
+}

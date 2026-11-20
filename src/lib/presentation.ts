@@ -49,11 +49,15 @@ export function presentContent(html: string, route: string) {
     $('.section-6 .w-button').text('Meet Paddo');
     $('.section-6 .column-2').append('<a class="video-fallback" href="https://www.youtube.com/watch?v=hk5MFO64Qcs" target="_blank" rel="noopener noreferrer">Watch Paddo’s reveal on YouTube <span aria-hidden="true">↗</span></a>');
   }
-  // Give sponsor marks dedicated, evenly spaced canvases without cropping them.
-  $('.sponsors.largest').attr('id', 'sponsors');
-  $('.sponsors img').each((_, el) => {
-    $(el).wrap('<div class="sponsor-logo"></div>');
-  });
+  const sponsors = $('.sponsors.largest').attr('id', 'sponsors');
+  if (route === '/') {
+    // The original homepage layout sizes logos as direct children of each row.
+    sponsors.closest('.body-section').addClass('homepage-sponsors');
+  } else {
+    $('.sponsors img').each((_, el) => {
+      $(el).wrap('<div class="sponsor-logo"></div>');
+    });
+  }
   if (route === '/our-members') {
     $('h1').each((_, el) => { el.tagName = 'h2'; });
     $.root().prepend('<h1 class="page-heading">Student Leadership</h1>');

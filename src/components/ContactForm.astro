@@ -1,0 +1,128 @@
+---
+const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT?.trim();
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY?.trim();
+const configured = Boolean(endpoint && siteKey);
+---
+<section class="contact-form-shell" aria-labelledby="contact-form-title">
+  <div class="contact-form-heading">
+    <h2 id="contact-form-title">Send Our Team a Message</h2>
+  </div>
+  <form class="contact-form" method="post" data-contact-form data-endpoint={endpoint} data-site-key={siteKey}>
+    <label for="contact-name">Name</label>
+    <input id="contact-name" name="name" autocomplete="name" maxlength="100" required />
+    <label for="contact-email">Email</label>
+    <input id="contact-email" name="email" type="email" autocomplete="email" maxlength="254" required />
+    <label for="contact-message">Message</label>
+    <textarea id="contact-message" name="message" rows="6" maxlength="3000" required></textarea>
+    <div hidden aria-hidden="true">
+      <label for="contact-website">Leave this field empty</label>
+      <input id="contact-website" name="website" tabindex="-1" autocomplete="off" />
+    </div>
+    <div data-contact-challenge></div>
+    <button class="w-button" type="submit" disabled>Send message</button>
+    <p data-contact-status role="status">{configured ? 'Loading spam protection…' : 'Online submission is temporarily unavailable.'}</p>
+    <noscript><p>Enable JavaScript to use this form, or email us directly.</p></noscript>
+  </form>
+  <div class="contact-form-alternative">
+    <p>You can also email <a href="mailto:frc8033@piedmontmakers.org">frc8033@piedmontmakers.org</a>.</p>
+  </div>
+</section>
+
+<script>
+  type Turnstile = {
+    render(container: HTMLElement, options: Record<string, unknown>): string;
+    reset(widget: string): void;
+  };
+
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  const endpoint = form?.dataset.endpoint;
+  const siteKey = form?.dataset.siteKey;
+
+  if (form && endpoint && siteKey) {
+    const challenge = form.querySelector<HTMLElement>('[data-contact-challenge]')!;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const status = form.querySelector<HTMLElement>('[data-contact-status]')!;
+    let token = '';
+    let sending = false;
+    let turnstile: Turnstile | undefined;
+    let widget: string | undefined;
+
+    function setToken(value: string) {
+      token = value;
+      button.disabled = sending || !value;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    script.async = true;
+    const loadingTimeout = window.setTimeout(() => {
+      status.textContent = 'Spam protection is taking longer than expected. You can email us directly.';
+    }, 10_000);
+    script.onerror = () => {
+      window.clearTimeout(loadingTimeout);
+      status.textContent = 'Spam protection could not load. Reload the page or email us directly.';
+    };
+    script.onload = () => {
+      turnstile = (window as Window & { turnstile?: Turnstile }).turnstile;
+      if (!turnstile) return script.onerror?.(new Event('error'));
+      widget = turnstile.render(challenge, {
+        sitekey: siteKey,
+        action: 'contact',
+        size: challenge.clientWidth < 300 ? 'compact' : 'normal',
+        'response-field': false,
+        'refresh-expired': 'auto',
+        callback(value: string) {
+          window.clearTimeout(loadingTimeout);
+          setToken(value);
+          if (status.textContent?.startsWith('Loading') || status.textContent?.startsWith('Spam protection')) {
+            status.textContent = '';
+          }
+        },
+        'expired-callback'() {
+          setToken('');
+        },
+        'error-callback'() {
+          window.clearTimeout(loadingTimeout);
+          setToken('');
+          if (!sending) status.textContent = 'Spam protection could not verify this browser. Reload the page or email us directly.';
+        },
+      });
+    };
+    document.head.append(script);
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!token || sending) return;
+
+      const body = new URLSearchParams();
+      for (const [name, value] of new FormData(form)) body.set(name, String(value));
+      body.set('token', token);
+      sending = true;
+      setToken('');
+      status.textContent = 'Submitting your message…';
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          body,
+          signal: AbortSignal.timeout(15_000),
+          credentials: 'omit',
+        });
+        if (response.ok) {
+          form.reset();
+          status.textContent = 'Thanks. Your message was received.';
+        } else if (response.status === 429) {
+          status.textContent = 'Too many attempts. Wait a minute and try again.';
+        } else if (response.status === 400) {
+          status.textContent = 'Check your answers and complete the spam check again.';
+        } else {
+          status.textContent = 'We could not confirm receipt. Try again or email us directly.';
+        }
+      } catch {
+        status.textContent = 'We could not confirm receipt. Try again or email us directly.';
+      } finally {
+        sending = false;
+        if (turnstile && widget !== undefined) turnstile.reset(widget);
+      }
+    });
+  }
+</script>

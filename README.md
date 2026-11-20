@@ -37,7 +37,7 @@ The workflow in `.github/workflows/pages.yml` installs locked dependencies with 
 
 No personal access token, repository secret, `gh-pages` branch, or manually committed build folder is needed for this deployment workflow. Organization Actions policies and environment protection rules may require an administrator to allow the listed official GitHub actions or approve the deployment.
 
-Publishing the static site does not configure browser-based CMS sign-in. The CMS remains available at `/frc8033.com/admin/`; use its local-repository mode or separately configure its GitHub authentication. Google Forms handles contact submissions. Domain/DNS changes are separate from this default Pages deployment.
+Publishing the static site does not configure browser-based CMS sign-in. The CMS remains available at `/frc8033.com/admin/`; use its local-repository mode or separately configure its GitHub authentication. See [contact form deployment](docs/contact-form.md) to enable and operate online contact submissions. Domain/DNS changes are separate from this default Pages deployment.
 
 Content records keep logical site-root paths such as `/robots/paddo` and `/assets/...`; rendering adds the deployment prefix. New Astro components should use `withBase()` from `src/lib/urls.ts`. Preserve external links and fragment-only anchors. Downloaded CSS uses stylesheet-relative image/font URLs, so it also works under a subdirectory.
 
