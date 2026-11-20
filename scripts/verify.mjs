@@ -9,6 +9,10 @@ const m = JSON.parse(await readFile('archive/2026-11-05/manifest.json','utf8'));
 const errors = []; let links = 0; let media = 0;
 const pages = await Promise.all((await readdir('src/content/pages')).filter(f => f.endsWith('.json')).map(async f => JSON.parse(await readFile('src/content/pages/'+f, 'utf8'))));
 const routes = new Set([...pages.map(p => p.route),'/search','/admin','/404']);
+const live = JSON.parse(await readFile('docs/url-compatibility/live-site.json', 'utf8'));
+for (const legacy of [...m.pages, ...live.pages]) {
+  if (!routes.has(legacy.route)) errors.push(`Missing legacy URL: ${legacy.route}`);
+}
 for (const page of pages) {
   const file = 'dist' + (page.route === '/' ? '/index.html' : page.route+'/index.html');
   const $ = load(await readFile(file,'utf8'));

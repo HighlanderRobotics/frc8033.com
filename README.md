@@ -12,9 +12,37 @@ Search is at `/frc8033.com/search/`; CMS is at `/frc8033.com/admin/`. `npm run d
 
 ### The current live website remains on Webflow.
 
+## Test, commit, and push
+
+Install test browsers after `npm ci` with `npx playwright install chromium`.
+Use `npm run test:dev` while editing for unit and browser checks after saves.
+Stop the watcher with Ctrl+C before a full browser run or push.
+
+Review and stage your changes, then commit and push from a terminal:
+
+```powershell
+git status --short --branch
+git diff
+git add -p
+git diff --cached
+git commit -m "Describe the change"
+git push
+```
+
+Stage new untracked files explicitly with `git add --` and their paths;
+`git add -p` selects changes in tracked files. The commit hook runs unit tests.
+The push hook runs `npm run test:ci`: coverage, model checks, production build,
+site validation, and desktop/mobile browser tests. A failure blocks the operation.
+Use the terminal for live hook output; VS Code's Git Output panel also records
+Git results. GitHub repeats the checks after pushing and gates deployment.
+
+See the [complete testing and commit guide](docs/testing.md) for every test command,
+extended and AI workflows, staging examples, VS Code logging settings, reports,
+and repairs for missing Playwright browsers or failed pushes.
+
 ## GitHub Pages URLs
 
-The default public URL is `https://highlanderrobotics.github.io/frc8033.com/`, matching the repository's default GitHub Pages project path. `config/site.mjs` is the shared deployment configuration. Astro routes, imported HTML, navigation, images, CSS, Pagefind, canonical URLs, sitemap, and CMS media URLs honor this base path.
+The default local/PR URL uses `/frc8033.com/`, matching `https://highlanderrobotics.github.io/frc8033.com/`. Production builds read the actual origin and base path from GitHub Pages before validation and building. Once Pages is configured for `www.frc8033.com`, the workflow automatically builds for `https://www.frc8033.com/` with no repository prefix. `config/site.mjs` is the shared deployment configuration. Astro routes, imported HTML, navigation, images, CSS, Pagefind, canonical URLs, sitemap, and CMS media URLs honor this base path.
 
 To build for a custom domain at the domain root in PowerShell:
 
@@ -37,7 +65,7 @@ The workflow in `.github/workflows/pages.yml` installs locked dependencies with 
 
 No personal access token, repository secret, `gh-pages` branch, or manually committed build folder is needed for this deployment workflow. Organization Actions policies and environment protection rules may require an administrator to allow the listed official GitHub actions or approve the deployment.
 
-Publishing the static site does not configure browser-based CMS sign-in. The CMS remains available at `/frc8033.com/admin/`; use its local-repository mode or separately configure its GitHub authentication. See [contact form deployment](docs/contact-form.md) to enable and operate online contact submissions. Domain/DNS changes are separate from this default Pages deployment.
+Publishing the static site does not configure browser-based CMS sign-in. The CMS is available at `/frc8033.com/admin/` on the project URL and `/admin/` on the custom domain; use its local-repository mode or separately configure its GitHub authentication. See [contact form deployment](docs/contact-form.md) to enable and operate online contact submissions. See [URL compatibility and domain cutover](docs/url-compatibility/README.md) before connecting the domain.
 
 Content records keep logical site-root paths such as `/robots/paddo` and `/assets/...`; rendering adds the deployment prefix. New Astro components should use `withBase()` from `src/lib/urls.ts`. Preserve external links and fragment-only anchors. Downloaded CSS uses stylesheet-relative image/font URLs, so it also works under a subdirectory.
 
